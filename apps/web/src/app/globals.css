@@ -149,68 +149,108 @@ body {
 }
 
 /* ---------------------------------------------------------------------------
-   Чек. Главный экран — бумажный чек: параметры поездки редактируются прямо
-   в его верхних строках, ниже расходы, внизу «Итого».
+   Значения внутри фразы калькулятора.
+   Читается как часть предложения, но ведёт себя как поле: пунктир под
+   значением плюс шеврон рядом, чтобы было видно — тут открывается список.
 --------------------------------------------------------------------------- */
 
-/* Бумага: лёгкая крапчатость, чтобы поверхность не читалась плоской заливкой,
-   и тень достаточной глубины, раз чек лежит на тёмном фоне. */
-.receipt-paper {
-  background-color: var(--color-surface);
-  background-image:
-    radial-gradient(circle at 18% 12%, rgba(53, 172, 190, 0.05) 0, transparent 42%),
-    radial-gradient(circle at 84% 78%, rgba(125, 226, 223, 0.07) 0, transparent 46%);
-  box-shadow:
-    0 48px 90px -40px rgba(0, 0, 0, 0.8),
-    0 10px 28px -14px rgba(0, 0, 0, 0.5);
-}
-
-/* Значение в строке чека: не текст с подчёркиванием, а именно кнопка выбора —
-   рамка, фон и шеврон. Из-за этого сразу видно, что строку можно менять. */
-.chip {
-  appearance: none;
+.madlib-trigger {
   display: inline-flex;
-  align-items: center;
-  background-color: var(--color-muted);
-  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%235b6472' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 0.75em center;
-  border: 1px solid var(--color-line);
-  border-radius: 9px;
-  color: var(--color-ink);
+  align-items: baseline;
+  gap: 0.22em;
   font: inherit;
-  font-weight: 700;
-  line-height: 1.15;
-  padding: 0.42em 2.1em 0.42em 0.72em;
+  color: var(--color-cold);
+  background: none;
+  border: none;
+  border-bottom: 2px dashed rgba(125, 226, 223, 0.5);
+  padding: 0 0.08em 0.04em;
   cursor: pointer;
-  transition: border-color 0.15s, background-color 0.15s, color 0.15s;
+  transition: border-color 0.15s, color 0.15s;
 }
 
-.chip:hover {
-  border-color: var(--color-laguna);
-  background-color: var(--color-cold-4);
-  color: var(--color-laguna-active);
+.madlib-trigger:hover,
+.madlib-trigger[aria-expanded="true"] {
+  border-bottom-color: var(--color-cold);
+  color: var(--color-cold-2);
 }
 
-.chip:focus-visible {
-  outline: 2px solid var(--color-laguna);
-  outline-offset: 2px;
+.madlib-trigger:focus-visible {
+  outline: 2px solid var(--color-cold);
+  outline-offset: 4px;
+  border-radius: 3px;
 }
 
-/* Крупный вариант — для направления и месяца: это первое, что меняют. */
-.chip-lg {
+/* Шеврон наследует кегль строки, поэтому одинаково смотрится и в заголовке,
+   и в мелком тексте. */
+.madlib-caret {
+  width: 0.34em;
+  height: 0.34em;
+  flex: none;
+  transition: transform 0.18s ease;
+}
+
+.madlib-trigger[aria-expanded="true"] .madlib-caret {
+  transform: rotate(180deg);
+}
+
+/* Сам список: тёмное стекло в цветах сайта вместо системного выпадающего
+   меню, которое на тёмном фоне выглядело чужим. */
+.madlib-panel {
+  position: absolute;
+  top: calc(100% + 0.4em);
+  left: 0;
+  z-index: 40;
+  display: block;
+  min-width: max(100%, 13rem);
+  max-width: min(20rem, calc(100vw - 2.5rem));
+  max-height: 16rem;
+  overflow-y: auto;
+  padding: 6px;
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(26, 29, 46, 0.94);
+  backdrop-filter: blur(20px) saturate(150%);
+  -webkit-backdrop-filter: blur(20px) saturate(150%);
+  box-shadow:
+    0 30px 60px -24px rgba(0, 0, 0, 0.85),
+    inset 0 1px 0 rgba(255, 255, 255, 0.14);
+  /* Внутри списка своя типографика: иначе он унаследовал бы кегль заголовка. */
+  font-family: var(--font-sans);
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: normal;
+  line-height: 1.3;
+  text-align: left;
+  color: var(--color-paper);
+}
+
+.madlib-option {
+  display: block;
+  padding: 9px 12px;
   border-radius: 11px;
-  padding: 0.34em 2.3em 0.34em 0.8em;
-  background-position: right 0.85em center;
+  color: rgba(249, 250, 251, 0.75);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color 0.12s, color 0.12s;
 }
 
-/* Отточие между названием строки и суммой, как в настоящем чеке. */
+.madlib-option[data-highlighted="true"] {
+  background: rgba(255, 255, 255, 0.09);
+  color: var(--color-paper);
+}
+
+.madlib-option[aria-selected="true"] {
+  background: var(--color-cold);
+  color: var(--color-night);
+}
+
+/* Отточие между названием строки расчёта и суммой. Цвет берётся от текста
+   вокруг, поэтому работает и на светлом, и на тёмном фоне. */
 .leader {
   flex: 1 1 auto;
-  min-width: 1.5rem;
-  /* Отточие держится на базовой линии первой строки названия, а не на низу
-     блока: под названием есть пояснение в две строки. */
+  min-width: 1.25rem;
   align-self: flex-start;
-  margin-top: 0.8rem;
-  border-bottom: 1px dotted var(--color-line);
+  margin-top: 0.7rem;
+  border-bottom: 1px dotted currentColor;
+  opacity: 0.32;
 }
