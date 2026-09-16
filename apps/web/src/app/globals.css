@@ -80,37 +80,6 @@ body {
   font-variant-numeric: tabular-nums;
 }
 
-/* Инлайновые поля в «предложении» калькулятора: подчёркнутое значение,
-   которое читается как часть фразы, а не как элемент формы. */
-.madlib {
-  appearance: none;
-  background: transparent;
-  border: none;
-  border-bottom: 2px dashed rgba(125, 226, 223, 0.45);
-  color: #7de2df;
-  font: inherit;
-  padding: 0 0.1em 0.06em;
-  cursor: pointer;
-  transition: border-color 0.15s, color 0.15s;
-}
-
-.madlib:hover {
-  border-bottom-color: #7de2df;
-  color: #b0edeb;
-}
-
-.madlib:focus-visible {
-  outline: 2px solid #7de2df;
-  outline-offset: 4px;
-  border-radius: 2px;
-}
-
-.madlib option {
-  background: #1a1d2e;
-  color: #f9fafb;
-  font-size: 16px;
-}
-
 /* ---------------------------------------------------------------------------
    Стеклянные объёмные плашки.
    Толщина стекла собирается из трёх теней: внешняя отбрасываемая, светлая
@@ -177,4 +146,71 @@ body {
   border-radius: 9999px;
   filter: blur(64px);
   pointer-events: none;
+}
+
+/* ---------------------------------------------------------------------------
+   Чек. Главный экран — бумажный чек: параметры поездки редактируются прямо
+   в его верхних строках, ниже расходы, внизу «Итого».
+--------------------------------------------------------------------------- */
+
+/* Бумага: лёгкая крапчатость, чтобы поверхность не читалась плоской заливкой,
+   и тень достаточной глубины, раз чек лежит на тёмном фоне. */
+.receipt-paper {
+  background-color: var(--color-surface);
+  background-image:
+    radial-gradient(circle at 18% 12%, rgba(53, 172, 190, 0.05) 0, transparent 42%),
+    radial-gradient(circle at 84% 78%, rgba(125, 226, 223, 0.07) 0, transparent 46%);
+  box-shadow:
+    0 48px 90px -40px rgba(0, 0, 0, 0.8),
+    0 10px 28px -14px rgba(0, 0, 0, 0.5);
+}
+
+/* Значение в строке чека: не текст с подчёркиванием, а именно кнопка выбора —
+   рамка, фон и шеврон. Из-за этого сразу видно, что строку можно менять. */
+.chip {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  background-color: var(--color-muted);
+  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%235b6472' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.75em center;
+  border: 1px solid var(--color-line);
+  border-radius: 9px;
+  color: var(--color-ink);
+  font: inherit;
+  font-weight: 700;
+  line-height: 1.15;
+  padding: 0.42em 2.1em 0.42em 0.72em;
+  cursor: pointer;
+  transition: border-color 0.15s, background-color 0.15s, color 0.15s;
+}
+
+.chip:hover {
+  border-color: var(--color-laguna);
+  background-color: var(--color-cold-4);
+  color: var(--color-laguna-active);
+}
+
+.chip:focus-visible {
+  outline: 2px solid var(--color-laguna);
+  outline-offset: 2px;
+}
+
+/* Крупный вариант — для направления и месяца: это первое, что меняют. */
+.chip-lg {
+  border-radius: 11px;
+  padding: 0.34em 2.3em 0.34em 0.8em;
+  background-position: right 0.85em center;
+}
+
+/* Отточие между названием строки и суммой, как в настоящем чеке. */
+.leader {
+  flex: 1 1 auto;
+  min-width: 1.5rem;
+  /* Отточие держится на базовой линии первой строки названия, а не на низу
+     блока: под названием есть пояснение в две строки. */
+  align-self: flex-start;
+  margin-top: 0.8rem;
+  border-bottom: 1px dotted var(--color-line);
 }
