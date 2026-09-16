@@ -130,7 +130,11 @@ export function Globe({ target, dimmed }: { target: { lon: number; lat: number }
     let size = 0;
     const resize = () => {
       const dpr = Math.min(2, window.devicePixelRatio || 1);
-      size = wrap.clientWidth;
+      // Берём меньшую сторону: колонка бывает низкой и широкой, и квадратный
+      // холст по ширине попросту не помещался — шар резало сверху и снизу.
+      size = Math.max(120, Math.min(wrap.clientWidth, wrap.clientHeight));
+      canvas.style.width = `${size}px`;
+      canvas.style.height = `${size}px`;
       canvas.width = Math.round(size * dpr);
       canvas.height = Math.round(size * dpr);
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -196,9 +200,11 @@ export function Globe({ target, dimmed }: { target: { lon: number; lat: number }
         if (spin.t >= 1) spin = null;
       } else if (goal) {
         pin = 1;
-        // Еле заметное покачивание: шар живой, но метка никуда не уезжает.
-        rotation.lon = goal.lon + (reduce ? 0 : Math.sin(now / 2600) * 2.2);
-        rotation.lat = goal.lat;
+        // Шар продолжает поворачиваться и после остановки, но качается вокруг
+        // выбранной точки: вращение видно, а метка не уходит на обратную
+        // сторону, как было бы при равномерном вращении.
+        rotation.lon = goal.lon + (reduce ? 0 : Math.sin(now / 5200) * 26);
+        rotation.lat = goal.lat + (reduce ? 0 : Math.sin(now / 8300) * 5);
       } else if (!reduce) {
         rotation.lon = (rotation.lon + IDLE_SPEED * dt) % 360;
         rotation.lat += (IDLE_LAT - rotation.lat) * (1 - Math.exp(-2 * dt));
@@ -284,8 +290,8 @@ export function Globe({ target, dimmed }: { target: { lon: number; lat: number }
   }, []);
 
   return (
-    <div ref={wrapRef} className="relative aspect-square w-full">
-      <canvas ref={canvasRef} className="size-full" aria-hidden />
+    <div ref={wrapRef} className="flex size-full items-center justify-center">
+      <canvas ref={canvasRef} aria-hidden />
     </div>
   );
 }

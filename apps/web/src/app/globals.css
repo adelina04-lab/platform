@@ -238,3 +238,46 @@ body {
 .sheet-in {
   animation: sheet-in 0.45s cubic-bezier(0.16, 1, 0.3, 1);
 }
+
+/* Ползунок бюджета. Системный вид на тёмном фоне выглядит чужим, поэтому
+   дорожка и бегунок нарисованы вручную; заполненная часть приходит из
+   переменной --fill, которую ставит React. */
+.range {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 6px;
+  border-radius: 999px;
+  cursor: pointer;
+  background: linear-gradient(
+    90deg,
+    var(--color-cold) var(--fill, 50%),
+    rgba(249, 250, 251, 0.16) var(--fill, 50%)
+  );
+}
+
+.range:focus-visible {
+  outline: 2px solid var(--color-cold);
+  outline-offset: 6px;
+}
+
+.range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  background: var(--color-cold);
+  border: 3px solid var(--color-night);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.55);
+  cursor: pointer;
+}
+
+.range::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 999px;
+  background: var(--color-cold);
+  border: 3px solid var(--color-night);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.55);
+  cursor: pointer;
+}

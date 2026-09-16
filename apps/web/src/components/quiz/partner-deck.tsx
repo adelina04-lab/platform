@@ -6,7 +6,7 @@ import { PARTNERS } from "@/lib/quiz";
 const CARD = 198;
 const GAP = 14;
 const STEP = CARD + GAP;
-const HEIGHT = 168;
+const HEIGHT = 146;
 const N = PARTNERS.length;
 /** Три копии списка: крайние карточки въезжают в кадр из уже готовой ленты. */
 const RENDERED = Array.from({ length: N * 3 }, (_, i) => ({ partner: PARTNERS[i % N]!, i }));

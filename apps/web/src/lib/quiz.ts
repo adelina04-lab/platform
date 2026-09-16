@@ -19,7 +19,13 @@ export interface QuizStep {
   id: QuizStepId;
   question: string;
   hint: string;
-  options: readonly QuizOption[];
+  /**
+   * `options` — обычный выбор из вариантов слева.
+   * `control` — у шага своё управление в правой половине: счётчик людей,
+   * ползунок бюджета. Вариантов слева у таких шагов нет.
+   */
+  kind: "options" | "control";
+  options?: readonly QuizOption[];
 }
 
 /** Куда смотрит глобус. Координаты — курортная часть страны, не столица. */
@@ -34,13 +40,19 @@ export const QUIZ_PLACES: Record<string, { lon: number; lat: number; spot: strin
   vietnam: { lon: 109.2, lat: 12.2, spot: "Нячанг" },
 };
 
-/** Сколько ориентировочно денег стоит за каждым вариантом бюджета. */
-export const BUDGET_MIDPOINTS: Record<string, number> = {
-  "to-100": 80_000,
-  "100-200": 150_000,
-  "200-400": 300_000,
-  "from-400": 550_000,
-};
+/** Границы ползунка бюджета, в рублях. */
+export const BUDGET_RANGE = {
+  min: 40_000,
+  max: 1_000_000,
+  step: 10_000,
+  initial: 200_000,
+} as const;
+
+/** Быстрые кнопки под ползунком, тоже в рублях. */
+export const BUDGET_PRESETS = [100_000, 200_000, 400_000, 700_000] as const;
+
+export const MAX_ADULTS = 6;
+export const MAX_CHILDREN = 4;
 
 /** Месяцы, попадающие в сезон, — по ним поворачивается кольцо. */
 export const SEASON_MONTHS: Record<string, readonly number[]> = {
@@ -55,6 +67,7 @@ export const QUIZ_STEPS: readonly QuizStep[] = [
     id: "destination",
     question: "Куда бы вы хотели отправиться?",
     hint: "Глобус повернётся к выбранной точке",
+    kind: "options",
     options: [
       { value: "turciya", label: "Турция", note: "Анталья" },
       { value: "egipet", label: "Египет", note: "Хургада" },
@@ -69,30 +82,20 @@ export const QUIZ_STEPS: readonly QuizStep[] = [
   {
     id: "travellers",
     question: "Сколько человек едет?",
-    hint: "Считаем перелёт и питание на каждого, номер — на двоих",
-    options: [
-      { value: "1", label: "Один" },
-      { value: "2", label: "Двое" },
-      { value: "3", label: "Трое" },
-      { value: "4", label: "Четверо" },
-      { value: "5", label: "Пятеро и больше" },
-    ],
+    hint: "Взрослые и дети считаются по-разному: перелёт ребёнку дешевле, номер — на двоих",
+    kind: "control",
   },
   {
     id: "budget",
     question: "Какой бюджет на всю поездку?",
     hint: "Вместе с перелётом, питанием, трансфером и страховкой",
-    options: [
-      { value: "to-100", label: "До 100 000 ₽" },
-      { value: "100-200", label: "100–200 тысяч" },
-      { value: "200-400", label: "200–400 тысяч" },
-      { value: "from-400", label: "Больше 400 тысяч" },
-    ],
+    kind: "control",
   },
   {
     id: "season",
     question: "Когда планируете поехать?",
     hint: "Сдвиг на месяц часто меняет сумму сильнее, чем звёздность отеля",
+    kind: "options",
     options: [
       { value: "winter", label: "Зимой", note: "декабрь — февраль" },
       { value: "spring", label: "Весной", note: "март — май" },
@@ -104,6 +107,7 @@ export const QUIZ_STEPS: readonly QuizStep[] = [
     id: "priority",
     question: "Что для вас важнее всего?",
     hint: "От этого зависит, на чём можно сэкономить, а на чём нельзя",
+    kind: "options",
     options: [
       { value: "beach", label: "Пляж и ничего не делать" },
       { value: "sights", label: "Экскурсии и города" },
@@ -113,7 +117,25 @@ export const QUIZ_STEPS: readonly QuizStep[] = [
   },
 ];
 
-export type QuizAnswers = Partial<Record<QuizStepId, string>>;
+/** Ответы: два шага дают числа, остальные — строку выбранного варианта. */
+export interface QuizAnswers {
+  destination: string | null;
+  adults: number;
+  children: number;
+  /** В рублях. */
+  budget: number;
+  season: string | null;
+  priority: string | null;
+}
+
+export const INITIAL_ANSWERS: QuizAnswers = {
+  destination: null,
+  adults: 2,
+  children: 0,
+  budget: BUDGET_RANGE.initial,
+  season: null,
+  priority: null,
+};
 
 export interface Partner {
   name: string;
