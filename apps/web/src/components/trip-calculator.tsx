@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import type { ComfortTier, CostComponent } from "@platform/core";
+import type { ComfortTier } from "@platform/core";
 import { InlineSelect } from "@/components/inline-select";
 import { useCountUp } from "@/hooks/use-count-up";
 import {
@@ -9,7 +9,6 @@ import {
   DEMO_DESTINATIONS,
   MONTHS_NOMINATIVE,
   MONTHS_PREPOSITIONAL,
-  SEGMENT_COLORS,
   TIER_LABELS,
   estimateDemo,
   formatMoney,
@@ -57,7 +56,6 @@ export function TripCalculator() {
     allInclusive: true,
   });
   const [tier, setTier] = useState<ComfortTier>("standard");
-  const [hovered, setHovered] = useState<CostComponent | null>(null);
 
   const estimate = useMemo(() => estimateDemo(input), [input]);
   const active = estimate.tiers.find((t) => t.tier === tier) ?? estimate.tiers[1]!;
@@ -66,15 +64,6 @@ export function TripCalculator() {
   // Цифра итога перебегает к новому значению: движение — самый понятный
   // признак того, что страница считает, а не показывает картинку.
   const shownTotal = useCountUp(active.totalMinor);
-
-  const parts = useMemo(
-    () =>
-      active.components
-        .filter((c) => c.included && c.amountMinor > 0)
-        .sort((a, b) => b.amountMinor - a.amountMinor)
-        .map((c) => ({ ...c, share: c.amountMinor / active.totalMinor })),
-    [active],
-  );
 
   const patch = (next: Partial<DemoInput>) => setInput((prev) => ({ ...prev, ...next }));
 
@@ -249,81 +238,6 @@ export function TripCalculator() {
               {formatMoney(shownTotal)}
             </span>
           </div>
-        </div>
-      </div>
-
-      {/* --------------------------- ПОЛОСА ДОЛЕЙ --------------------------- */}
-      <div className="flex flex-col gap-6">
-        <h2 className="font-display text-[19px] font-bold tracking-[-0.025em] text-paper">
-          Куда уходят деньги
-        </h2>
-
-        <div className="flex h-[72px] gap-1 sm:h-[88px]">
-          {parts.map((p) => {
-            const color = SEGMENT_COLORS[p.component];
-            const dim = hovered !== null && hovered !== p.component;
-            return (
-              <button
-                key={p.component}
-                type="button"
-                onMouseEnter={() => setHovered(p.component)}
-                onMouseLeave={() => setHovered(null)}
-                onFocus={() => setHovered(p.component)}
-                onBlur={() => setHovered(null)}
-                style={{
-                  flexGrow: p.share,
-                  flexBasis: 0,
-                  minWidth: 14,
-                  background: color.bg,
-                  color: color.fg,
-                  opacity: dim ? 0.3 : 1,
-                }}
-                className="flex flex-col justify-end overflow-hidden rounded-[8px] px-3 pb-2.5 text-left shadow-[inset_0_1px_0_rgba(255,255,255,.35)] transition-opacity"
-                aria-label={`${COMPONENT_LABELS[p.component]}: ${formatMoney(p.amountMinor)}`}
-              >
-                {p.share > 0.11 && (
-                  <>
-                    <span className="tnum block font-display text-[19px] font-bold leading-none tracking-[-0.02em]">
-                      {Math.round(p.share * 100)}%
-                    </span>
-                    <span className="mt-1 block truncate font-mono text-[10px] uppercase tracking-[0.08em] opacity-70">
-                      {COMPONENT_LABELS[p.component]}
-                    </span>
-                  </>
-                )}
-              </button>
-            );
-          })}
-        </div>
-
-        <div className="grid grid-cols-2 gap-x-6 gap-y-px sm:grid-cols-3 lg:grid-cols-4">
-          {parts.map((p) => {
-            const dim = hovered !== null && hovered !== p.component;
-            return (
-              <div
-                key={p.component}
-                onMouseEnter={() => setHovered(p.component)}
-                onMouseLeave={() => setHovered(null)}
-                className={`flex items-baseline justify-between gap-3 border-b border-paper/10 py-2.5 transition-opacity ${
-                  dim ? "opacity-35" : "opacity-100"
-                }`}
-              >
-                <span className="flex min-w-0 items-center gap-2.5">
-                  <span
-                    aria-hidden
-                    className="size-2.5 shrink-0 rounded-[3px]"
-                    style={{ background: SEGMENT_COLORS[p.component].bg }}
-                  />
-                  <span className="truncate text-[13.5px] text-paper/70">
-                    {COMPONENT_LABELS[p.component]}
-                  </span>
-                </span>
-                <span className="tnum shrink-0 text-[13.5px] font-semibold text-paper">
-                  {formatMoney(p.amountMinor)}
-                </span>
-              </div>
-            );
-          })}
         </div>
       </div>
 
