@@ -1,0 +1,85 @@
+// Модель цен (эпик E2).
+//
+// Главный принцип: таблица цен append-only. Мы не перезаписываем старое
+// значение новым, а добавляем новое наблюдение с датой сбора. Через год это
+// даёт историю, которую конкурент не повторит, не начав собирать её тогда же.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+/// Направление: страна или отдельный курорт.
+model Destination {
+  id           String   @id @default(cuid())
+  /// Слаг для URL: `turciya`, `egipet`, `sochi`.
+  slug         String   @unique
+  name         String
+  country      String
+  /// Нужна ли виза гражданину РФ.
+  visaRequired Boolean  @default(false)
+  /// Выключенное направление не отдаётся калькулятором и не индексируется.
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  pricePoints PricePoint[]
+
+  @@map("destinations")
+}
+
+/// Одно наблюдение цены: компонент поездки в конкретном месяце.
+model PricePoint {
+  id            String      @id @default(cuid())
+  destinationId String
+  destination   Destination @relation(fields: [destinationId], references: [id], onDelete: Cascade)
+
+  component  CostComponent
+  /// Месяц поездки, 1–12.
+  month      Int
+  tier       ComfortTier
+  /// IATA города вылета — только для компонентов, которые от него зависят.
+  originCity String?
+
+  /// Стоимость в копейках: деньги никогда не хранятся во float.
+  valueMinor Int
+  currency   String @default("RUB")
+
+  source      PriceSource
+  /// Дата сбора. По самой старой из использованных цен считается «обновлено».
+  collectedAt DateTime    @default(now())
+
+  @@index([destinationId, component, month, tier])
+  @@index([collectedAt])
+  @@map("price_points")
+}
+
+enum CostComponent {
+  FLIGHT
+  ACCOMMODATION
+  PACKAGE_TOUR
+  TRANSFER
+  INSURANCE
+  FOOD
+  EXCURSIONS
+  VISA
+}
+
+enum ComfortTier {
+  ECONOMY
+  STANDARD
+  COMFORT
+}
+
+enum PriceSource {
+  TRAVELPAYOUTS
+  LEVEL_TRAVEL
+  TRAVELATA
+  CHEREHAPA
+  KIWITAXI
+  MANUAL
+}
