@@ -118,6 +118,13 @@ export type QuizAnswers = Partial<Record<QuizStepId, string>>;
 export interface Partner {
   name: string;
   kind: string;
+  /**
+   * Монограмма на месте логотипа. Настоящие логотипы партнёрские программы
+   * выдают вместе с бренд-китом и только после одобрения заявки — до этого
+   * ставить их на живой сайт нельзя: это выглядело бы как несуществующее
+   * партнёрство. Заставка занимает ровно то место, куда логотип и встанет.
+   */
+  mark: string;
   /** Шаг, на котором колода останавливается именно на этой витрине. */
   settlesOn: QuizStepId;
 }
@@ -127,11 +134,11 @@ export interface Partner {
  * из программ ещё не подключена, поэтому в карточках нет ни цен, ни ссылок.
  */
 export const PARTNERS: readonly Partner[] = [
-  { name: "Яндекс Путешествия", kind: "Отели и туры", settlesOn: "destination" },
-  { name: "Aviasales", kind: "Авиабилеты", settlesOn: "season" },
-  { name: "Travelata", kind: "Пакетные туры", settlesOn: "budget" },
-  { name: "Level.Travel", kind: "Пакетные туры", settlesOn: "travellers" },
-  { name: "Островок", kind: "Отели", settlesOn: "travellers" },
-  { name: "Kiwitaxi", kind: "Трансферы", settlesOn: "priority" },
-  { name: "Черехапа", kind: "Страховки", settlesOn: "priority" },
+  { name: "Яндекс Путешествия", kind: "Отели и туры", mark: "ЯП", settlesOn: "destination" },
+  { name: "Aviasales", kind: "Авиабилеты", mark: "AS", settlesOn: "season" },
+  { name: "Travelata", kind: "Пакетные туры", mark: "TR", settlesOn: "budget" },
+  { name: "Level.Travel", kind: "Пакетные туры", mark: "LT", settlesOn: "travellers" },
+  { name: "Островок", kind: "Отели", mark: "ОС", settlesOn: "travellers" },
+  { name: "Kiwitaxi", kind: "Трансферы", mark: "KT", settlesOn: "priority" },
+  { name: "Черехапа", kind: "Страховки", mark: "ЧХ", settlesOn: "priority" },
 ];

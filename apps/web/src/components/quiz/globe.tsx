@@ -31,11 +31,6 @@ function project(lon: number, lat: number, c: Rotation) {
   };
 }
 
-/** Кратчайший путь по долготе: из 350° в 10° надо идти вперёд, а не назад. */
-function shortestLonDelta(from: number, to: number): number {
-  return ((to - from + 540) % 360) - 180;
-}
-
 function buildLandPath(c: Rotation, cx: number, cy: number, r: number): Path2D {
   const path = new Path2D();
 
@@ -148,16 +143,62 @@ export function Globe({ target, dimmed }: { target: { lon: number; lat: number }
     let frame = 0;
     let last = performance.now();
 
+    /** Раскрутка к выбранной точке: не подмена кадра, а настоящий оборот. */
+    interface Spin {
+      fromLon: number;
+      fromLat: number;
+      dLon: number;
+      dLat: number;
+      t: number;
+      dur: number;
+    }
+
+    let spin: Spin | null = null;
+    let lastGoal: { lon: number; lat: number } | null = null;
+    let pin = 0; // 0 — метки нет, 1 — метка села
+
+    const easeInOutCubic = (t: number) =>
+      t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+
     const draw = (now: number) => {
       const dt = Math.min(0.05, (now - last) / 1000);
       last = now;
 
       const goal = targetRef.current;
-      if (goal) {
-        // Экспоненциальное сглаживание: быстро стартует, мягко причаливает.
-        const k = reduce ? 1 : 1 - Math.exp(-3.2 * dt);
-        rotation.lon += shortestLonDelta(rotation.lon, goal.lon) * k;
-        rotation.lat += (goal.lat - rotation.lat) * k;
+      if (goal?.lon !== lastGoal?.lon || goal?.lat !== lastGoal?.lat) {
+        lastGoal = goal ? { ...goal } : null;
+        pin = 0;
+        if (goal) {
+          // Всегда крутим на восток и добавляем полный оборот: иначе переход
+          // из Турции в Египет — это четыре градуса, и вращения не видно.
+          const forward = (((goal.lon - rotation.lon) % 360) + 360) % 360;
+          spin = {
+            fromLon: rotation.lon,
+            fromLat: rotation.lat,
+            dLon: forward + 360,
+            dLat: goal.lat - rotation.lat,
+            t: 0,
+            dur: reduce ? 0.001 : 2.2,
+          };
+        } else {
+          spin = null;
+        }
+      }
+
+      if (spin) {
+        spin.t = Math.min(1, spin.t + dt / spin.dur);
+        const e = easeInOutCubic(spin.t);
+        rotation.lon = spin.fromLon + spin.dLon * e;
+        rotation.lat = spin.fromLat + spin.dLat * e;
+        // Метка садится на последней четверти оборота, когда точка уже
+        // выехала на видимую сторону.
+        pin = Math.max(0, Math.min(1, (spin.t - 0.72) / 0.28));
+        if (spin.t >= 1) spin = null;
+      } else if (goal) {
+        pin = 1;
+        // Еле заметное покачивание: шар живой, но метка никуда не уезжает.
+        rotation.lon = goal.lon + (reduce ? 0 : Math.sin(now / 2600) * 2.2);
+        rotation.lat = goal.lat;
       } else if (!reduce) {
         rotation.lon = (rotation.lon + IDLE_SPEED * dt) % 360;
         rotation.lat += (IDLE_LAT - rotation.lat) * (1 - Math.exp(-2 * dt));
@@ -203,26 +244,30 @@ export function Globe({ target, dimmed }: { target: { lon: number; lat: number }
       ctx.lineWidth = 1;
       ctx.stroke();
 
-      if (goal) {
+      if (goal && pin > 0) {
         const pt = project(goal.lon, goal.lat, rotation);
         if (pt.visible) {
           const px = cx + r * pt.x;
-          const py = cy - r * pt.y;
+          // Метка не проявляется, а падает сверху — так видно, что её ставят.
+          const py = cy - r * pt.y - (1 - pin) * 26;
+          const grow = easeInOutCubic(pin);
           const pulse = reduce ? 0.5 : (Math.sin(now / 620) + 1) / 2;
 
-          ctx.beginPath();
-          ctx.arc(px, py, 7 + pulse * 13, 0, Math.PI * 2);
-          ctx.fillStyle = `rgba(125,226,223,${0.22 * (1 - pulse)})`;
-          ctx.fill();
+          if (pin >= 1) {
+            ctx.beginPath();
+            ctx.arc(px, py, 7 + pulse * 13, 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(125,226,223,${0.22 * (1 - pulse)})`;
+            ctx.fill();
+          }
 
           ctx.beginPath();
-          ctx.arc(px, py, 7, 0, Math.PI * 2);
-          ctx.strokeStyle = "rgba(125,226,223,0.85)";
+          ctx.arc(px, py, 7 * grow, 0, Math.PI * 2);
+          ctx.strokeStyle = `rgba(125,226,223,${0.85 * grow})`;
           ctx.lineWidth = 1.4;
           ctx.stroke();
 
           ctx.beginPath();
-          ctx.arc(px, py, 3.2, 0, Math.PI * 2);
+          ctx.arc(px, py, 3.2 * grow, 0, Math.PI * 2);
           ctx.fillStyle = "#7de2df";
           ctx.fill();
         }

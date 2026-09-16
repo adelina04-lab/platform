@@ -222,8 +222,8 @@ export function QuizSection() {
           </div>
 
           {/* --------------------------- КАРТИНКА --------------------------- */}
-          <div className="flex flex-col gap-4 lg:sticky lg:top-8 lg:self-start">
-            <div className="relative flex aspect-square max-h-[560px] items-center justify-center overflow-hidden rounded-modal border border-paper/10 bg-night sm:aspect-[5/4]">
+          <div className="flex flex-col gap-4">
+            <div className="relative flex aspect-square max-h-[430px] items-center justify-center overflow-hidden rounded-modal border border-paper/10 bg-night sm:aspect-[5/4]">
               {/* Мягкое свечение под сценой — чтобы тёмный прямоугольник не
                   выглядел дырой в секции. */}
               <span
@@ -240,24 +240,29 @@ export function QuizSection() {
               </span>
               <span className="text-[13.5px] font-bold text-cold">{stageCaption()}</span>
             </div>
+
+            {/* ------------------------ ВИТРИНЫ ------------------------ */}
+            <div className="mt-4 flex flex-col gap-3 border-t border-paper/10 pt-6">
+              <div className="flex flex-wrap items-baseline justify-between gap-x-5 gap-y-1">
+                <h3 className="font-display text-[17px] font-bold tracking-[-0.025em] text-paper">
+                  Где будем искать
+                </h3>
+                <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-paper/55">
+                  лента тормозит на подходящей витрине
+                </span>
+              </div>
+
+              <PartnerDeck targetIndex={deckTarget} />
+
+              <p className="text-[12px] leading-snug text-paper/55">
+                Макет: ни одна партнёрская программа пока не подключена, поэтому в карточках нет
+                ни цен, ни ссылок. На месте заставок встанут логотипы — их выдают вместе с
+                бренд-китом и только после одобрения заявки.
+              </p>
+            </div>
           </div>
         </div>
 
-        {/* ---------------------------- ВИТРИНЫ ---------------------------- */}
-        <div className="mt-16 flex flex-col gap-6 lg:mt-20">
-          <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-2">
-            <h3 className="font-display text-[19px] font-bold tracking-[-0.025em] text-paper">
-              Где будем искать
-            </h3>
-            <p className="max-w-[62ch] text-[12.5px] leading-snug text-paper/55">
-              Макет: ни одна партнёрская программа пока не подключена, поэтому в карточках нет ни
-              цен, ни ссылок. Лента останавливается на той витрине, которая отвечает за текущий
-              ответ.
-            </p>
-          </div>
-
-          <PartnerDeck targetIndex={deckTarget} />
-        </div>
       </div>
     </section>
   );
