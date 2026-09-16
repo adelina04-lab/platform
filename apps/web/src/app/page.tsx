@@ -88,7 +88,18 @@ export default function HomePage() {
             <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-paper/35">Бета</span>
           </nav>
 
-          <div className="py-12 sm:py-16 lg:py-20">
+          <div className="flex flex-col gap-10 py-12 sm:py-16 lg:gap-14 lg:py-20">
+            {/* Заголовок стоит над обеими колонками, поэтому калькулятор и
+                смета начинаются с одной линии. */}
+            <div className="flex flex-col gap-4">
+              <span className="font-mono text-[11px] uppercase tracking-[0.16em] text-cold">
+                Калькулятор отпуска
+              </span>
+              <h1 className="max-w-[18ch] text-balance font-display text-[clamp(32px,5.4vw,64px)] font-extrabold leading-[1.04] tracking-[-0.045em] text-paper">
+                Сколько на самом деле стоит отпуск
+              </h1>
+            </div>
+
             <TripCalculator />
           </div>
         </div>

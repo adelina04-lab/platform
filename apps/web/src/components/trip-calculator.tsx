@@ -7,6 +7,7 @@ import { useCountUp } from "@/hooks/use-count-up";
 import {
   COMPONENT_LABELS,
   DEMO_DESTINATIONS,
+  MONTHS_NOMINATIVE,
   MONTHS_PREPOSITIONAL,
   SEGMENT_COLORS,
   TIER_LABELS,
@@ -101,12 +102,16 @@ export function TripCalculator() {
         <div className="flex flex-col gap-7">
           {/* Пунктирная рамка с контрастной подписью: сразу видно, что это
               поле ввода, а не просто крупный заголовок. */}
-          <div className="relative rounded-[28px] border-2 border-dashed border-cold/40 px-5 pb-7 pt-9 sm:px-8 sm:pb-8 sm:pt-10">
+          <div
+            role="group"
+            aria-label="Параметры поездки"
+            className="relative rounded-[28px] border-2 border-dashed border-cold/40 px-5 pb-7 pt-9 sm:px-8 sm:pb-8 sm:pt-10"
+          >
             <span className="absolute -top-3 left-5 rounded-full bg-cold px-4 py-1.5 font-mono text-[10.5px] font-semibold uppercase tracking-[0.12em] text-night sm:left-8 sm:text-[11px]">
               Введите данные для расчёта отпуска
             </span>
 
-            <h1 className="font-display text-[clamp(27px,3.7vw,46px)] font-extrabold leading-[1.25] tracking-[-0.035em] text-paper">
+            <p className="font-display text-[clamp(27px,3.7vw,46px)] font-extrabold leading-[1.25] tracking-[-0.035em] text-paper">
               Хочу в{" "}
               <InlineSelect
                 label="Направление"
@@ -154,7 +159,7 @@ export function TripCalculator() {
                 options={MEAL_SELECT}
                 onChange={(v) => patch({ allInclusive: v === "ai" })}
               />
-            </h1>
+            </p>
           </div>
 
           <p className="max-w-[46ch] text-[16px] leading-relaxed text-paper/50">
@@ -189,7 +194,7 @@ export function TripCalculator() {
           <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 border-b border-night/20 pb-4">
             <span className="font-mono text-[11px] uppercase tracking-[0.14em]">Смета поездки</span>
             <span className="font-mono text-[11px] uppercase tracking-[0.14em] text-night/70">
-              {estimate.destination.name}, {MONTHS_PREPOSITIONAL[input.month - 1]}
+              {estimate.destination.name}, {MONTHS_NOMINATIVE[input.month - 1]}
             </span>
           </div>
 

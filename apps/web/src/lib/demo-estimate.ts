@@ -169,6 +169,22 @@ export const MONTHS_PREPOSITIONAL = [
   "декабре",
 ] as const;
 
+/** Для подписей вида «Турция, октябрь» — там предложный падеж не годится. */
+export const MONTHS_NOMINATIVE = [
+  "январь",
+  "февраль",
+  "март",
+  "апрель",
+  "май",
+  "июнь",
+  "июль",
+  "август",
+  "сентябрь",
+  "октябрь",
+  "ноябрь",
+  "декабрь",
+] as const;
+
 export const COMPONENT_LABELS: Record<CostComponent, string> = {
   flight: "Перелёт",
   accommodation: "Проживание",
