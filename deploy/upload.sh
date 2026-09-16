@@ -21,14 +21,11 @@ out="$here/apps/web/out"
 base="ftp://$HOST/$ROOT"
 cp "$here/deploy/htaccess" "$out/.htaccess"
 
-# Обработчик формы обратной связи и его настройки: собираются не сборщиком
-# Next, а лежат рядом и кладутся в готовую выкладку.
-cp "$here/deploy/public/"* "$out/"
-if [ -f "$here/deploy/form-config.php" ]; then
-  cp "$here/deploy/form-config.php" "$out/form-config.php"
-else
-  echo "! form-config.php не найден — форма ответит «не подключена»."
-  echo "  Скопируйте deploy/form-config.sample.php в deploy/form-config.php и впишите почту."
+# Файлы, которые не собирает Next, а нужно положить рядом с готовой выкладкой.
+# Сейчас каталога нет: форма обратной связи снята до подключения партнёрских
+# API, её обработчик лежит в deploy/drafts.
+if [ -d "$here/deploy/public" ]; then
+  cp "$here/deploy/public/"* "$out/"
 fi
 
 total=$(cd "$out" && find . -type f | wc -l)

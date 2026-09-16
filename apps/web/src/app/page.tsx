@@ -1,5 +1,3 @@
-import Link from "next/link";
-import { ContactForm } from "@/components/contact-form";
 import { QuizSection } from "@/components/quiz/quiz-section";
 import { SolutionCarousel } from "@/components/solution-carousel";
 import { TripCalculator } from "@/components/trip-calculator";
@@ -76,34 +74,36 @@ export default function HomePage() {
         </section>
 
         {/* ============================== СВЯЗЬ ============================== */}
+        {/* Пока только телефон. Форма обратной связи собирала бы персональные
+            данные, а это отдельный набор обязанностей — уведомление в
+            Роскомнадзор, опубликованная политика, HTTPS. До подключения
+            партнёрских API смысла брать их на себя нет; готовая форма лежит
+            в src/drafts. */}
         <section id="contacts" className="bg-night-2">
-          <div className="mx-auto grid w-full max-w-[1320px] gap-10 px-5 py-20 sm:px-8 lg:grid-cols-[0.9fr_1.1fr] lg:gap-16 lg:px-12 lg:py-28">
-            <div className="flex flex-col gap-6">
-              <span className="font-mono text-[11px] uppercase tracking-[0.16em] text-cold">
-                Обратная связь
-              </span>
-              <h2 className="text-balance font-display text-[clamp(26px,3.6vw,44px)] font-extrabold leading-[1.08] tracking-[-0.04em] text-paper">
-                Не сошлось с вашей поездкой? Напишите
-              </h2>
-              <p className="max-w-[46ch] text-[15.5px] leading-relaxed text-paper/60">
-                Сервис в бете, и расчёт пока демонстрационный. Если цифры разошлись с тем, что вы
-                потратили на самом деле, — это самое полезное, что можно сейчас рассказать.
-              </p>
+          <div className="mx-auto flex w-full max-w-[1320px] flex-col items-start gap-6 px-5 py-20 sm:px-8 lg:px-12 lg:py-28">
+            <span className="font-mono text-[11px] uppercase tracking-[0.16em] text-cold">
+              Обратная связь
+            </span>
+            <h2 className="max-w-[20ch] text-balance font-display text-[clamp(26px,3.6vw,44px)] font-extrabold leading-[1.08] tracking-[-0.04em] text-paper">
+              Не сошлось с вашей поездкой? Позвоните
+            </h2>
+            <p className="max-w-[52ch] text-[15.5px] leading-relaxed text-paper/60">
+              Сервис в бете, расчёт пока демонстрационный. Если цифры разошлись с тем, что вы
+              потратили на самом деле, — это самое полезное, что можно сейчас рассказать.
+            </p>
 
-              <a
-                href="tel:+79603782536"
-                className="inline-flex w-fit items-baseline gap-3 font-display text-[clamp(22px,3vw,32px)] font-extrabold tracking-[-0.03em] text-paper transition-colors hover:text-cold"
-              >
-                +7 960 378-25-36
-              </a>
-              <span className="-mt-3 font-mono text-[10.5px] uppercase tracking-[0.12em] text-paper/55">
-                Звонок или сообщение в мессенджере
-              </span>
-            </div>
-
-            <ContactForm />
+            <a
+              href="tel:+79603782536"
+              className="mt-2 inline-flex items-center rounded-field bg-cold px-7 py-4 font-display text-[clamp(21px,2.8vw,30px)] font-extrabold tracking-[-0.03em] text-night transition-colors hover:bg-cold-2"
+            >
+              +7 960 378-25-36
+            </a>
+            <span className="font-mono text-[10.5px] uppercase tracking-[0.12em] text-paper/55">
+              Звонок или сообщение в мессенджере
+            </span>
           </div>
         </section>
+
       </main>
 
       {/* ============================== ПОДВАЛ ============================== */}
@@ -122,9 +122,6 @@ export default function HomePage() {
               <a className="transition-colors hover:text-cold" href="#contacts">
                 Обратная связь
               </a>
-              <Link className="transition-colors hover:text-cold" href="/politika/">
-                Политика обработки данных
-              </Link>
               <a className="transition-colors hover:text-cold" href="tel:+79603782536">
                 +7 960 378-25-36
               </a>
