@@ -27,7 +27,10 @@ while IFS= read -r f; do
   rel="${f#./}"
   n=$((n + 1))
   printf '[%3d/%3d] %s\n' "$n" "$total" "$rel"
-  curl -sS --ftp-pasv --ftp-create-dirs -u "$USER:$PASS" -T "$out/$rel" "$base/$rel"
+  # FTP на shared-хостинге изредка отказывает в переходе в каталог. Без
+  # повторов заливка обрывалась на середине и на сервере оставалась смесь
+  # старой и новой сборки.
+  curl -sS --ftp-pasv --ftp-create-dirs --retry 4 --retry-delay 2 --retry-all-errors     -u "$USER:$PASS" -T "$out/$rel" "$base/$rel"
 done < <(cd "$out" && find . -type f | sort)
 
 echo "Готово: $n файлов в $ROOT"
