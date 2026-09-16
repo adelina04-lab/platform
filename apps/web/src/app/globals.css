@@ -186,3 +186,43 @@ body {
   border-bottom: 1px dotted currentColor;
   opacity: 0.32;
 }
+
+/* ---------------------------------------------------------------------------
+   Стекло витрин партнёров.
+   Фон под лентой спокойный и тёмный, поэтому прозрачность здесь работает:
+   белый текст на получившейся подложке даёт около 8 : 1.
+--------------------------------------------------------------------------- */
+
+.glass {
+  position: relative;
+  background: linear-gradient(150deg, rgba(255, 255, 255, 0.1) 0%, rgba(125, 226, 223, 0.05) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  backdrop-filter: blur(14px) saturate(140%);
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
+  box-shadow:
+    0 20px 44px -22px rgba(0, 0, 0, 0.7),
+    inset 0 1px 0 rgba(255, 255, 255, 0.28);
+}
+
+/* Заглушка на месте будущих данных. Придумывать цены нельзя, а пустое место
+   выглядит как поломка — поэтому полоска, которая честно говорит «грузится». */
+.skeleton {
+  display: block;
+  background-image: linear-gradient(
+    90deg,
+    rgba(249, 250, 251, 0.1) 0%,
+    rgba(249, 250, 251, 0.24) 50%,
+    rgba(249, 250, 251, 0.1) 100%
+  );
+  background-size: 220% 100%;
+  animation: skeleton-sweep 1.9s ease-in-out infinite;
+}
+
+@keyframes skeleton-sweep {
+  0% {
+    background-position: 120% 0;
+  }
+  100% {
+    background-position: -120% 0;
+  }
+}

@@ -1,3 +1,4 @@
+import { QuizSection } from "@/components/quiz/quiz-section";
 import { SolutionCarousel } from "@/components/solution-carousel";
 import { TripCalculator } from "@/components/trip-calculator";
 import { SEGMENT_COLORS, estimateDemo, formatMoney } from "@/lib/demo-estimate";
@@ -75,6 +76,9 @@ export default function HomePage() {
               Итого
             </span>
             <div className="hidden items-center gap-7 text-[13.5px] text-paper/55 md:flex">
+              <a className="transition-colors hover:text-cold" href="#quiz">
+                Подбор
+              </a>
               <a className="transition-colors hover:text-cold" href="#gap">
                 Зачем
               </a>
@@ -95,6 +99,8 @@ export default function HomePage() {
       </header>
 
       <main>
+        <QuizSection />
+
         {/* ========================= РАЗРЫВ ОЖИДАНИЙ ========================= */}
         <section id="gap" className="bg-paper">
           <div className="mx-auto w-full max-w-[1320px] px-5 py-20 sm:px-8 lg:px-12 lg:py-28">
