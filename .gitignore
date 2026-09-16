@@ -29,3 +29,6 @@ packages/db/src/generated/
 
 # генерируется next dev
 next-env.d.ts
+
+# Настройки формы обратной связи: в них личная почта
+deploy/form-config.php

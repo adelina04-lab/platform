@@ -1,3 +1,5 @@
+import Link from "next/link";
+import { ContactForm } from "@/components/contact-form";
 import { QuizSection } from "@/components/quiz/quiz-section";
 import { SolutionCarousel } from "@/components/solution-carousel";
 import { TripCalculator } from "@/components/trip-calculator";
@@ -72,6 +74,36 @@ export default function HomePage() {
             </a>
           </div>
         </section>
+
+        {/* ============================== СВЯЗЬ ============================== */}
+        <section id="contacts" className="bg-night-2">
+          <div className="mx-auto grid w-full max-w-[1320px] gap-10 px-5 py-20 sm:px-8 lg:grid-cols-[0.9fr_1.1fr] lg:gap-16 lg:px-12 lg:py-28">
+            <div className="flex flex-col gap-6">
+              <span className="font-mono text-[11px] uppercase tracking-[0.16em] text-cold">
+                Обратная связь
+              </span>
+              <h2 className="text-balance font-display text-[clamp(26px,3.6vw,44px)] font-extrabold leading-[1.08] tracking-[-0.04em] text-paper">
+                Не сошлось с вашей поездкой? Напишите
+              </h2>
+              <p className="max-w-[46ch] text-[15.5px] leading-relaxed text-paper/60">
+                Сервис в бете, и расчёт пока демонстрационный. Если цифры разошлись с тем, что вы
+                потратили на самом деле, — это самое полезное, что можно сейчас рассказать.
+              </p>
+
+              <a
+                href="tel:+79603782536"
+                className="inline-flex w-fit items-baseline gap-3 font-display text-[clamp(22px,3vw,32px)] font-extrabold tracking-[-0.03em] text-paper transition-colors hover:text-cold"
+              >
+                +7 960 378-25-36
+              </a>
+              <span className="-mt-3 font-mono text-[10.5px] uppercase tracking-[0.12em] text-paper/55">
+                Звонок или сообщение в мессенджере
+              </span>
+            </div>
+
+            <ContactForm />
+          </div>
+        </section>
       </main>
 
       {/* ============================== ПОДВАЛ ============================== */}
@@ -87,19 +119,27 @@ export default function HomePage() {
               </span>
             </div>
             <nav className="flex flex-col gap-2.5 text-[14px] text-paper/55">
-              <a className="transition-colors hover:text-cold" href="#">
-                Как мы считаем
+              <a className="transition-colors hover:text-cold" href="#contacts">
+                Обратная связь
               </a>
-              <a className="transition-colors hover:text-cold" href="#">
-                Источники цен
-              </a>
-              <a className="transition-colors hover:text-cold" href="#">
+              <Link className="transition-colors hover:text-cold" href="/politika/">
                 Политика обработки данных
+              </Link>
+              <a className="transition-colors hover:text-cold" href="tel:+79603782536">
+                +7 960 378-25-36
               </a>
             </nav>
           </div>
 
-          <p className="max-w-[80ch] border-t border-paper/10 pt-8 text-[12.5px] leading-relaxed text-paper/35">
+          {/* ВНИМАНИЕ: перед запуском сюда нужно дописать ФИО и ИНН —
+              без них подпись «самозанятая» никого не идентифицирует, а при
+              маркировке рекламы эти данные всё равно придётся раскрыть. */}
+          <p className="border-t border-paper/10 pt-8 text-[13px] leading-relaxed text-paper/55">
+            Сайт ведёт самозанятая — плательщик налога на профессиональный доход.
+            Телефон для связи: <a className="hover:text-cold" href="tel:+79603782536">+7 960 378-25-36</a>.
+          </p>
+
+          <p className="max-w-[80ch] text-[12.5px] leading-relaxed text-paper/35">
             Сервис не продаёт туры и не принимает платежи. Переходы к партнёрам — Яндекс Путешествия,
             Level.Travel, Cherehapa, Kiwitaxi — содержат партнёрские ссылки: партнёр платит комиссию с
             состоявшегося бронирования, на цену для вас это не влияет. Цены в расчётах на этой странице
