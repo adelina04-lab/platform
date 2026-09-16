@@ -52,6 +52,29 @@ docker compose exec app npm run db:migrate
 
 Сайт откроется на http://localhost:3000.
 
+### 5. Быстрый цикл разработки
+
+Fast Refresh через бинд-монт на Windows не работает: Turbopack не получает
+события файловой системы, и после правки нужен `docker compose restart app`.
+Опрос (`watchOptions.pollIntervalMs`) помогает только сборке на webpack, а
+Turbopack его игнорирует — документация Next прямо советует не держать
+дев-сервер в Docker.
+
+Поэтому для работы над интерфейсом держите в Docker только базу и очереди, а
+дев-сервер запускайте на хосте:
+
+```bash
+docker compose up -d postgres redis
+npm install          # один раз
+npm run dev
+```
+
+В `.env` при этом хост базы должен быть `localhost`, а не `postgres` —
+закомментированная строка для этого уже лежит в `.env.example`.
+
+Полный `docker compose up -d` остаётся рабочим: он нужен, чтобы проверить
+сборку в том же окружении, что и на проде.
+
 ---
 
 ## Структура

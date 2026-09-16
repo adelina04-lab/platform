@@ -363,3 +363,19 @@ export function formatMoney(minor: number): string {
 export function formatAmount(minor: number): string {
   return rubles.format(Math.round(minor / 100 / 100) * 100);
 }
+
+/**
+ * Цвета долей в полосе расходов. Взяты из шкалы Laguna: самые крупные
+ * компоненты — самые светлые, мелкие получают бледные оттенки, чтобы узкая
+ * полоска всё равно читалась на тёмном фоне.
+ */
+export const SEGMENT_COLORS: Record<CostComponent, { bg: string; fg: string }> = {
+  accommodation: { bg: "#7de2df", fg: "#12414a" },
+  flight: { bg: "#35acbe", fg: "#f9fafb" },
+  food: { bg: "#2a8a98", fg: "#f9fafb" },
+  excursions: { bg: "#1f6874", fg: "#f9fafb" },
+  insurance: { bg: "#52c6cc", fg: "#12414a" },
+  transfer: { bg: "#b0edeb", fg: "#12414a" },
+  packageTour: { bg: "#d8f6f5", fg: "#12414a" },
+  visa: { bg: "#eafbfa", fg: "#12414a" },
+};
