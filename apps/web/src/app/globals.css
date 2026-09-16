@@ -1,5 +1,112 @@
 @import "tailwindcss";
 
-:root {
-  color-scheme: light dark;
+/* ---------------------------------------------------------------------------
+   Дизайн-система Laguna v1.0.
+   Четыре базовых цвета: Dr. White, Cold Blue, Laguna, Dark Knight — и
+   производные от них. Сетка 8 px, радиусы 10 / 16 / 24, две тени.
+--------------------------------------------------------------------------- */
+
+@theme {
+  /* Поверхности */
+  --color-paper: #f9fafb;
+  --color-surface: #ffffff;
+  --color-muted: #edeff2;
+  --color-line: #d7dbe0;
+  --color-line-soft: #edeff2;
+
+  /* Текст */
+  --color-ink: #1a1d2e;
+  --color-ink-2: #2a2f45;
+  --color-ink-3: #5b6472;
+  --color-ink-4: #9aa1ac;
+
+  /* Laguna — основной интерактивный */
+  --color-laguna: #35acbe;
+  --color-laguna-hover: #2a8a98;
+  --color-laguna-active: #1f6874;
+  --color-laguna-deep: #12414a;
+
+  /* Cold Blue — светлый акцент */
+  --color-cold: #7de2df;
+  --color-cold-2: #b0edeb;
+  --color-cold-3: #d8f6f5;
+  --color-cold-4: #eafbfa;
+
+  /* Тёмная поверхность */
+  --color-night: #1a1d2e;
+  --color-night-2: #2a2f45;
+  --color-night-3: #3d4460;
+
+  /* Типографика */
+  --font-display: var(--font-onest), "Segoe UI", system-ui, sans-serif;
+  --font-sans: var(--font-manrope), "Segoe UI", system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains), "Cascadia Mono", Consolas, monospace;
+
+  /* Радиусы */
+  --radius-field: 10px;
+  --radius-card: 16px;
+  --radius-modal: 24px;
+
+  /* Тени */
+  --shadow-card: 0 1px 2px rgba(26, 29, 46, 0.06);
+  --shadow-float: 0 12px 32px -12px rgba(26, 29, 46, 0.24);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+body {
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Монотабличные цифры везде, где числа выстраиваются в колонку. */
+.tnum {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Инлайновые поля в «предложении» калькулятора: подчёркнутое значение,
+   которое читается как часть фразы, а не как элемент формы. */
+.madlib {
+  appearance: none;
+  background: transparent;
+  border: none;
+  border-bottom: 2px dashed rgba(125, 226, 223, 0.45);
+  color: #7de2df;
+  font: inherit;
+  padding: 0 0.1em 0.06em;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.madlib:hover {
+  border-bottom-color: #7de2df;
+  color: #b0edeb;
+}
+
+.madlib:focus-visible {
+  outline: 2px solid #7de2df;
+  outline-offset: 4px;
+  border-radius: 2px;
+}
+
+.madlib option {
+  background: #1a1d2e;
+  color: #f9fafb;
+  font-size: 16px;
 }
