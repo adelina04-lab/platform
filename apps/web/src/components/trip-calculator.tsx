@@ -12,7 +12,6 @@ import {
   SEGMENT_COLORS,
   TIER_LABELS,
   estimateDemo,
-  formatAmount,
   formatMoney,
   plural,
   type DemoInput,
@@ -62,8 +61,6 @@ export function TripCalculator() {
 
   const estimate = useMemo(() => estimateDemo(input), [input]);
   const active = estimate.tiers.find((t) => t.tier === tier) ?? estimate.tiers[1]!;
-  const cheapest = estimate.tiers[0]!.totalMinor;
-  const dearest = estimate.tiers[2]!.totalMinor;
   const people = input.adults + input.children;
 
   // Цифра итога перебегает к новому значению: движение — самый понятный
@@ -79,26 +76,12 @@ export function TripCalculator() {
     [active],
   );
 
-  // Доля, которой нет в цене на витрине тура: всё, кроме перелёта и отеля.
-  const hiddenShare = useMemo(() => {
-    const visible = parts
-      .filter((p) => p.component === "flight" || p.component === "accommodation")
-      .reduce((s, p) => s + p.amountMinor, 0);
-    return Math.round(((active.totalMinor - visible) / active.totalMinor) * 100);
-  }, [parts, active]);
-
   const patch = (next: Partial<DemoInput>) => setInput((prev) => ({ ...prev, ...next }));
-
-  const footNotes = [
-    { label: "На человека", value: formatMoney(active.totalMinor / people) },
-    { label: "Разброс уровней", value: `${formatAmount(cheapest)} — ${formatAmount(dearest)}` },
-    { label: "Мимо цены тура", value: `${hiddenShare}%` },
-  ];
 
   return (
     <div className="flex flex-col gap-14 lg:gap-20">
       {/* ------------------- ФРАЗА И РАСЧЁТ ------------------- */}
-      <div className="grid items-start gap-12 lg:grid-cols-[1.04fr_0.96fr] lg:gap-10">
+      <div className="grid gap-12 lg:grid-cols-[1.04fr_0.96fr] lg:gap-10">
         <div className="flex flex-col gap-7">
           {/* Пунктирная рамка с контрастной подписью: сразу видно, что это
               поле ввода, а не просто крупный заголовок. */}
@@ -111,7 +94,7 @@ export function TripCalculator() {
               Введите данные для расчёта отпуска
             </span>
 
-            <p className="font-display text-[clamp(27px,3.7vw,46px)] font-extrabold leading-[1.25] tracking-[-0.035em] text-paper">
+            <h1 className="font-display text-[clamp(27px,3.7vw,46px)] font-extrabold leading-[1.25] tracking-[-0.035em] text-paper">
               Хочу в{" "}
               <InlineSelect
                 label="Направление"
@@ -159,7 +142,7 @@ export function TripCalculator() {
                 options={MEAL_SELECT}
                 onChange={(v) => patch({ allInclusive: v === "ai" })}
               />
-            </p>
+            </h1>
           </div>
 
           <p className="max-w-[46ch] text-[16px] leading-relaxed text-paper/50">
@@ -190,7 +173,7 @@ export function TripCalculator() {
             Второстепенный текст светлее основного ровно до 70 %: на этой
             заливке получается 5.6 : 1, а уже при 55 % — 3.7 : 1, то есть
             мельче нормы AA. */}
-        <div className="rounded-modal bg-cold p-5 text-night shadow-[0_40px_80px_-34px_rgba(0,0,0,.75),inset_0_1px_0_rgba(255,255,255,.55)] sm:p-7 lg:p-8">
+        <div className="flex h-full flex-col rounded-modal bg-cold p-5 text-night shadow-[0_40px_80px_-34px_rgba(0,0,0,.75),inset_0_1px_0_rgba(255,255,255,.55)] sm:p-7">
           <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 border-b border-night/20 pb-4">
             <span className="font-mono text-[11px] uppercase tracking-[0.14em]">Смета поездки</span>
             <span className="font-mono text-[11px] uppercase tracking-[0.14em] text-night/70">
@@ -198,7 +181,7 @@ export function TripCalculator() {
             </span>
           </div>
 
-          <div className="mt-5 flex flex-wrap items-center justify-between gap-3">
+          <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
             <span className="font-mono text-[10.5px] uppercase tracking-[0.12em] text-night/70">
               Уровень
             </span>
@@ -226,19 +209,17 @@ export function TripCalculator() {
           {/* Цветных маркеров здесь нет: половина шкалы долей — это оттенки
               самого Cold Blue, на такой заливке они бы пропали. Цвет статей
               живёт ниже, в полосе «Куда уходят деньги». */}
-          <ul className="mt-4">
+          <ul className="mt-3 flex flex-1 flex-col justify-between">
             {active.components.map((c) => (
               <li
                 key={c.component}
-                className={`flex items-start gap-2 border-b border-night/15 py-2.5 ${
-                  c.included ? "" : "opacity-45"
-                }`}
+                className={`flex shrink-0 items-start gap-2 py-1.5 ${c.included ? "" : "opacity-45"}`}
               >
                 <span className="flex min-w-0 flex-col gap-0.5">
                   <span className="text-[14.5px] font-bold leading-tight">
                     {COMPONENT_LABELS[c.component]}
                   </span>
-                  <span className="text-[11.5px] leading-snug text-night/70">{c.note}</span>
+                  <span className="text-[11.5px] leading-tight text-night/70">{c.note}</span>
                 </span>
 
                 <span aria-hidden className="leader" />
@@ -250,7 +231,7 @@ export function TripCalculator() {
             ))}
           </ul>
 
-          <div className="mt-6 flex flex-wrap items-end justify-between gap-x-6 gap-y-2 border-t-2 border-night/30 pt-5">
+          <div className="mt-4 flex flex-wrap items-end justify-between gap-x-6 gap-y-2 border-t-2 border-night/30 pt-4">
             <span className="flex flex-col gap-1">
               <span className="font-display text-[19px] font-extrabold tracking-[-0.03em]">
                 Итого
@@ -268,21 +249,6 @@ export function TripCalculator() {
               {formatMoney(shownTotal)}
             </span>
           </div>
-
-          <dl className="mt-5 grid gap-x-6 gap-y-2 border-t border-dashed border-night/25 pt-4 sm:grid-cols-3">
-            {footNotes.map((f) => (
-              <div key={f.label} className="flex items-baseline justify-between gap-3">
-                <dt className="font-mono text-[10px] uppercase tracking-[0.1em] text-night/70">
-                  {f.label}
-                </dt>
-                <dd className="tnum text-[13.5px] font-bold">{f.value}</dd>
-              </div>
-            ))}
-          </dl>
-
-          <p className="mt-4 text-[11.5px] leading-snug text-night/70">
-            Цены демонстрационные. Не вошли чаевые, сувениры, платные пляжи и покупки на месте.
-          </p>
         </div>
       </div>
 
@@ -381,6 +347,7 @@ export function TripCalculator() {
           ))}
         </div>
         <p className="text-[12.5px] leading-relaxed text-paper/35">
+          Цены демонстрационные. Не вошли чаевые, сувениры, платные пляжи и покупки на месте.
           Бронирование — на сайте партнёра.
         </p>
       </div>
