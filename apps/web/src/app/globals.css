@@ -110,3 +110,71 @@ body {
   color: #f9fafb;
   font-size: 16px;
 }
+
+/* ---------------------------------------------------------------------------
+   Стеклянные объёмные плашки.
+   Толщина стекла собирается из трёх теней: внешняя отбрасываемая, светлая
+   кромка сверху и цветной подсвет снизу изнутри. Плюс блик наискось.
+--------------------------------------------------------------------------- */
+
+.glass {
+  position: relative;
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.2) 0%, rgba(125, 226, 223, 0.05) 60%, rgba(53, 172, 190, 0.12) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  backdrop-filter: blur(16px) saturate(150%);
+  -webkit-backdrop-filter: blur(16px) saturate(150%);
+  box-shadow:
+    0 24px 48px -22px rgba(0, 0, 0, 0.7),
+    0 4px 12px -6px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.5),
+    inset 0 -18px 34px -22px rgba(125, 226, 223, 0.65);
+  overflow: hidden;
+}
+
+/* Блик: узкая светлая полоса наискось через верхний угол. */
+.glass::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(115deg, rgba(255, 255, 255, 0.34) 0%, rgba(255, 255, 255, 0) 38%);
+  pointer-events: none;
+}
+
+/* Цветное ядро внутри стекла — как в референсе: плашка внутри плашки. */
+.glass-core {
+  box-shadow:
+    0 8px 18px -8px rgba(0, 0, 0, 0.55),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+
+/* Парение. Базовый наклон задаётся обёрткой, здесь только вертикальный ход,
+   иначе трансформации перетирают друг друга. */
+@keyframes floaty {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(0, var(--amp, -14px), 0);
+  }
+}
+
+.floaty {
+  animation: floaty var(--dur, 7s) ease-in-out infinite;
+  animation-delay: var(--delay, 0s);
+  will-change: transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .floaty {
+    animation: none;
+  }
+}
+
+/* Мягкие световые пятна под сценой — дают глубину без картинок. */
+.glow {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(64px);
+  pointer-events: none;
+}

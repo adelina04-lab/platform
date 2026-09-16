@@ -2,6 +2,7 @@
 
 import { useMemo, useState, type ReactNode } from "react";
 import type { ComfortTier, CostComponent } from "@platform/core";
+import { GlassScene } from "@/components/glass-scene";
 import {
   COMPONENT_LABELS,
   DEMO_DESTINATIONS,
@@ -75,117 +76,165 @@ export function TripCalculator() {
     [active],
   );
 
+  // Доля, которой нет в цене на витрине тура: всё, кроме перелёта и отеля.
+  const hiddenShare = useMemo(() => {
+    const visible = parts
+      .filter((p) => p.component === "flight" || p.component === "accommodation")
+      .reduce((s, p) => s + p.amountMinor, 0);
+    return Math.round(((active.totalMinor - visible) / active.totalMinor) * 100);
+  }, [parts, active]);
+
   const patch = (next: Partial<DemoInput>) => setInput((prev) => ({ ...prev, ...next }));
 
-  return (
-    <div className="flex flex-col gap-12 lg:gap-16">
-      {/* ------------------------------ ФРАЗА ------------------------------ */}
-      <h1 className="max-w-[26ch] font-display text-[clamp(30px,5.2vw,62px)] font-extrabold leading-[1.14] tracking-[-0.035em] text-paper">
-        Хочу в{" "}
-        <Inline
-          id="calc-destination"
-          label="Направление"
-          value={input.destinationSlug}
-          onChange={(v) => patch({ destinationSlug: v })}
-        >
-          {DEMO_DESTINATIONS.map((d) => (
-            <option key={d.slug} value={d.slug}>
-              {d.accusative}
-            </option>
-          ))}
-        </Inline>{" "}
-        в{" "}
-        <Inline
-          id="calc-month"
-          label="Месяц поездки"
-          value={String(input.month)}
-          onChange={(v) => patch({ month: Number(v) })}
-        >
-          {MONTHS_PREPOSITIONAL.map((m, i) => (
-            <option key={m} value={i + 1}>
-              {m}
-            </option>
-          ))}
-        </Inline>{" "}
-        на{" "}
-        <Inline
-          id="calc-nights"
-          label="Сколько ночей"
-          value={String(input.nights)}
-          onChange={(v) => patch({ nights: Number(v) })}
-        >
-          {NIGHT_OPTIONS.map((n) => (
-            <option key={n} value={n}>
-              {n} {plural(n, "ночь", "ночи", "ночей")}
-            </option>
-          ))}
-        </Inline>
-        , <span className="text-paper/40">едем</span>{" "}
-        <Inline
-          id="calc-adults"
-          label="Сколько взрослых"
-          value={String(input.adults)}
-          onChange={(v) => patch({ adults: Number(v) })}
-        >
-          {ADULT_OPTIONS.map((n) => (
-            <option key={n} value={n}>
-              {n} {plural(n, "взрослый", "взрослых", "взрослых")}
-            </option>
-          ))}
-        </Inline>{" "}
-        <Inline
-          id="calc-children"
-          label="Сколько детей"
-          value={String(input.children)}
-          onChange={(v) => patch({ children: Number(v) })}
-        >
-          {CHILD_OPTIONS.map((n) => (
-            <option key={n} value={n}>
-              {n === 0 ? "без детей" : `и ${n} ${plural(n, "ребёнок", "ребёнка", "детей")}`}
-            </option>
-          ))}
-        </Inline>
-        , <span className="text-paper/40">отель</span>{" "}
-        <Inline
-          id="calc-stars"
-          label="Звёздность отеля"
-          value={String(input.hotelStars)}
-          onChange={(v) => patch({ hotelStars: Number(v) as 3 | 4 | 5 })}
-        >
-          {STAR_OPTIONS.map((n) => (
-            <option key={n} value={n}>
-              {n}★
-            </option>
-          ))}
-        </Inline>{" "}
-        <Inline
-          id="calc-meals"
-          label="Питание"
-          value={input.allInclusive ? "ai" : "bb"}
-          onChange={(v) => patch({ allInclusive: v === "ai" })}
-        >
-          <option value="ai">всё включено</option>
-          <option value="bb">с завтраками</option>
-        </Inline>
-      </h1>
+  const stats = [
+    { label: "Вся поездка", value: formatMoney(active.totalMinor), accent: true },
+    { label: "На человека", value: formatMoney(active.totalMinor / people) },
+    { label: "Разброс уровней", value: `${formatAmount(cheapest)} — ${formatAmount(dearest)}` },
+    { label: "Мимо цены тура", value: `${hiddenShare}%` },
+  ];
 
-      {/* ------------------------------ ИТОГ ------------------------------- */}
-      <div className="flex flex-wrap items-end justify-between gap-x-10 gap-y-8 border-t border-paper/15 pt-9">
-        <div className="flex flex-col gap-2">
-          <div className="flex items-center gap-3">
-            <span className="font-mono text-[11px] uppercase tracking-[0.14em] text-paper/45">
-              Вся поездка
-            </span>
-            <span className="rounded-full bg-paper/10 px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.1em] text-cold">
-              демо-цены
-            </span>
+  return (
+    <div className="flex flex-col gap-14 lg:gap-20">
+      {/* ------------------- ФРАЗА И СЦЕНА ИЗ ПЛАШЕК ------------------- */}
+      <div className="grid items-center gap-10 lg:grid-cols-[1.08fr_0.92fr] lg:gap-8">
+        <div className="flex flex-col gap-8">
+          <h1 className="max-w-[24ch] font-display text-[clamp(30px,4.6vw,58px)] font-extrabold leading-[1.14] tracking-[-0.035em] text-paper">
+            Хочу в{" "}
+            <Inline
+              id="calc-destination"
+              label="Направление"
+              value={input.destinationSlug}
+              onChange={(v) => patch({ destinationSlug: v })}
+            >
+              {DEMO_DESTINATIONS.map((d) => (
+                <option key={d.slug} value={d.slug}>
+                  {d.accusative}
+                </option>
+              ))}
+            </Inline>{" "}
+            в{" "}
+            <Inline
+              id="calc-month"
+              label="Месяц поездки"
+              value={String(input.month)}
+              onChange={(v) => patch({ month: Number(v) })}
+            >
+              {MONTHS_PREPOSITIONAL.map((m, i) => (
+                <option key={m} value={i + 1}>
+                  {m}
+                </option>
+              ))}
+            </Inline>{" "}
+            на{" "}
+            <Inline
+              id="calc-nights"
+              label="Сколько ночей"
+              value={String(input.nights)}
+              onChange={(v) => patch({ nights: Number(v) })}
+            >
+              {NIGHT_OPTIONS.map((n) => (
+                <option key={n} value={n}>
+                  {n} {plural(n, "ночь", "ночи", "ночей")}
+                </option>
+              ))}
+            </Inline>
+            , <span className="text-paper/40">едем</span>{" "}
+            <Inline
+              id="calc-adults"
+              label="Сколько взрослых"
+              value={String(input.adults)}
+              onChange={(v) => patch({ adults: Number(v) })}
+            >
+              {ADULT_OPTIONS.map((n) => (
+                <option key={n} value={n}>
+                  {n} {plural(n, "взрослый", "взрослых", "взрослых")}
+                </option>
+              ))}
+            </Inline>{" "}
+            <Inline
+              id="calc-children"
+              label="Сколько детей"
+              value={String(input.children)}
+              onChange={(v) => patch({ children: Number(v) })}
+            >
+              {CHILD_OPTIONS.map((n) => (
+                <option key={n} value={n}>
+                  {n === 0 ? "без детей" : `и ${n} ${plural(n, "ребёнок", "ребёнка", "детей")}`}
+                </option>
+              ))}
+            </Inline>
+            , <span className="text-paper/40">отель</span>{" "}
+            <Inline
+              id="calc-stars"
+              label="Звёздность отеля"
+              value={String(input.hotelStars)}
+              onChange={(v) => patch({ hotelStars: Number(v) as 3 | 4 | 5 })}
+            >
+              {STAR_OPTIONS.map((n) => (
+                <option key={n} value={n}>
+                  {n}★
+                </option>
+              ))}
+            </Inline>{" "}
+            <Inline
+              id="calc-meals"
+              label="Питание"
+              value={input.allInclusive ? "ai" : "bb"}
+              onChange={(v) => patch({ allInclusive: v === "ai" })}
+            >
+              <option value="ai">всё включено</option>
+              <option value="bb">с завтраками</option>
+            </Inline>
+          </h1>
+
+          <p className="max-w-[46ch] text-[16px] leading-relaxed text-paper/50">
+            Семь статей расходов вместо одной цены тура. Меняйте любое слово в предложении — смета
+            пересчитается сразу.
+          </p>
+
+          <div className="flex flex-wrap items-center gap-3">
+            <button
+              type="button"
+              className="inline-flex h-12 items-center rounded-field bg-laguna px-6 text-[15px] font-semibold text-paper transition-colors hover:bg-laguna-hover active:bg-laguna-active"
+            >
+              Туры в {estimate.destination.accusative}
+            </button>
+            <a
+              href="#solutions"
+              className="inline-flex h-12 items-center rounded-field border border-paper/20 px-6 text-[15px] font-semibold text-paper/80 transition-colors hover:border-cold hover:text-cold"
+            >
+              Готовые сметы
+            </a>
           </div>
-          <span className="tnum font-display text-[clamp(46px,10vw,104px)] font-extrabold leading-[0.88] tracking-[-0.045em] text-cold">
-            {formatMoney(active.totalMinor)}
-          </span>
         </div>
 
-        <div className="flex flex-col items-start gap-4 sm:items-end">
+        <GlassScene parts={parts} />
+      </div>
+
+      {/* ------------------------- ПЛАШКИ-ПОКАЗАТЕЛИ ------------------------- */}
+      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+        {stats.map((s) => (
+          <div key={s.label} className="glass flex flex-col gap-2 rounded-modal px-5 py-5">
+            <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-paper/45">
+              {s.label}
+            </span>
+            <span
+              className={`tnum font-display text-[clamp(19px,2.2vw,28px)] font-extrabold leading-none tracking-[-0.035em] ${
+                s.accent ? "text-cold" : "text-paper"
+              }`}
+            >
+              {s.value}
+            </span>
+          </div>
+        ))}
+      </div>
+
+      {/* --------------------------- ПОЛОСА ДОЛЕЙ --------------------------- */}
+      <div className="flex flex-col gap-6">
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <h2 className="font-display text-[19px] font-bold tracking-[-0.025em] text-paper">
+            Куда уходят деньги
+          </h2>
           <div className="flex gap-1 rounded-field bg-paper/8 p-1">
             {TIERS.map((t) => (
               <button
@@ -201,16 +250,9 @@ export function TripCalculator() {
               </button>
             ))}
           </div>
-          <p className="tnum text-[13.5px] text-paper/50">
-            от {formatAmount(cheapest)} до {formatMoney(dearest)} · {formatMoney(active.totalMinor / people)}{" "}
-            на человека
-          </p>
         </div>
-      </div>
 
-      {/* --------------------------- ПОЛОСА ДОЛЕЙ --------------------------- */}
-      <div className="flex flex-col gap-5">
-        <div className="flex h-[72px] gap-1 sm:h-[84px]">
+        <div className="flex h-[72px] gap-1 sm:h-[88px]">
           {parts.map((p) => {
             const color = SEGMENT_COLORS[p.component];
             const dim = hovered !== null && hovered !== p.component;
@@ -230,7 +272,7 @@ export function TripCalculator() {
                   color: color.fg,
                   opacity: dim ? 0.3 : 1,
                 }}
-                className="flex flex-col justify-end overflow-hidden rounded-[6px] px-3 pb-2.5 text-left transition-opacity"
+                className="flex flex-col justify-end overflow-hidden rounded-[8px] px-3 pb-2.5 text-left shadow-[inset_0_1px_0_rgba(255,255,255,.35)] transition-opacity"
                 aria-label={`${COMPONENT_LABELS[p.component]}: ${formatMoney(p.amountMinor)}`}
               >
                 {p.share > 0.11 && (
@@ -248,7 +290,6 @@ export function TripCalculator() {
           })}
         </div>
 
-        {/* Расшифровка полосы */}
         <div className="grid grid-cols-2 gap-x-6 gap-y-px sm:grid-cols-3 lg:grid-cols-4">
           {parts.map((p) => {
             const dim = hovered !== null && hovered !== p.component;
@@ -280,39 +321,29 @@ export function TripCalculator() {
         </div>
       </div>
 
-      {/* ----------------------- ЭКОНОМИЯ И ПЕРЕХОД ----------------------- */}
-      <div className="grid gap-8 lg:grid-cols-[1.25fr_0.75fr] lg:gap-12">
-        <div className="flex flex-col gap-3">
-          <span className="font-mono text-[11px] uppercase tracking-[0.14em] text-paper/45">
-            Сколько стоит каждое решение
-          </span>
-          <div className="grid gap-2 sm:grid-cols-3">
-            {estimate.savings.map((s) => (
-              <button
-                key={s.change}
-                type="button"
-                className="group flex flex-col gap-2 rounded-field border border-paper/15 px-4 py-3.5 text-left transition-colors hover:border-cold hover:bg-paper/5"
-              >
-                <span className="tnum font-display text-[21px] font-bold leading-none tracking-[-0.03em] text-cold">
-                  −{formatMoney(s.savesMinor)}
-                </span>
-                <span className="text-[13px] leading-snug text-paper/60">{s.change}</span>
-              </button>
-            ))}
-          </div>
+      {/* ---------------------------- ЭКОНОМИЯ ---------------------------- */}
+      <div className="flex flex-col gap-4">
+        <span className="font-mono text-[11px] uppercase tracking-[0.14em] text-paper/45">
+          Сколько стоит каждое решение
+        </span>
+        <div className="grid gap-3 sm:grid-cols-3">
+          {estimate.savings.map((s) => (
+            <button
+              key={s.change}
+              type="button"
+              className="flex flex-col gap-2 rounded-field border border-paper/15 px-5 py-4 text-left transition-colors hover:border-cold hover:bg-paper/5"
+            >
+              <span className="tnum font-display text-[24px] font-extrabold leading-none tracking-[-0.035em] text-cold">
+                −{formatMoney(s.savesMinor)}
+              </span>
+              <span className="text-[13.5px] leading-snug text-paper/60">{s.change}</span>
+            </button>
+          ))}
         </div>
-
-        <div className="flex flex-col gap-3 lg:pt-7">
-          <button
-            type="button"
-            className="inline-flex h-12 w-full items-center justify-center rounded-field bg-laguna px-5 text-[15px] font-semibold text-paper transition-colors hover:bg-laguna-hover active:bg-laguna-active"
-          >
-            Туры в {estimate.destination.accusative} · {MONTHS_PREPOSITIONAL[input.month - 1]}
-          </button>
-          <p className="text-[12.5px] leading-relaxed text-paper/40">
-            Бронирование — на сайте партнёра. Не вошли чаевые, сувениры и платные пляжи.
-          </p>
-        </div>
+        <p className="text-[12.5px] leading-relaxed text-paper/35">
+          Цены демонстрационные. Бронирование — на сайте партнёра; не вошли чаевые, сувениры и платные
+          пляжи.
+        </p>
       </div>
     </div>
   );

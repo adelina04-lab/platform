@@ -1,11 +1,6 @@
+import { SolutionCarousel } from "@/components/solution-carousel";
 import { TripCalculator } from "@/components/trip-calculator";
-import {
-  COMPONENT_LABELS,
-  MONTHS_PREPOSITIONAL,
-  SEGMENT_COLORS,
-  estimateDemo,
-  formatMoney,
-} from "@/lib/demo-estimate";
+import { SEGMENT_COLORS, estimateDemo, formatMoney } from "@/lib/demo-estimate";
 
 /* --------------------------------------------------------------------------
    Числа во всех секциях считает тот же демо-движок, что и калькулятор,
@@ -60,27 +55,6 @@ const REVIEWS = [
   "Первый калькулятор, который честно пишет, чего в расчёте нет. Обычно про страховку вспоминаешь уже в аэропорту.",
 ] as const;
 
-const EXAMPLE_INPUTS = [
-  { destinationSlug: "egipet", month: 1, nights: 10, adults: 2, children: 0, hotelStars: 5 as const, allInclusive: true },
-  { destinationSlug: "sochi", month: 6, nights: 5, adults: 2, children: 2, hotelStars: 4 as const, allInclusive: false },
-  { destinationSlug: "tailand", month: 11, nights: 12, adults: 2, children: 0, hotelStars: 4 as const, allInclusive: false },
-];
-
-/** Полоса долей в миниатюре — тот же приём, что в калькуляторе. */
-function MiniBar({ parts }: { parts: { component: keyof typeof SEGMENT_COLORS; share: number }[] }) {
-  return (
-    <div className="flex h-2.5 gap-[3px]">
-      {parts.map((p) => (
-        <span
-          key={p.component}
-          style={{ flexGrow: p.share, flexBasis: 0, background: SEGMENT_COLORS[p.component].bg }}
-          className="rounded-[2px]"
-        />
-      ))}
-    </div>
-  );
-}
-
 export default function HomePage() {
   const reference = estimateDemo(REFERENCE_INPUT);
   const refStandard = reference.tiers[1]!;
@@ -90,16 +64,6 @@ export default function HomePage() {
     .filter((c) => c.component === "flight" || c.component === "accommodation")
     .reduce((s, c) => s + c.amountMinor, 0);
   const hiddenShare = Math.round(((refTotal - advertised) / refTotal) * 100);
-
-  const examples = EXAMPLE_INPUTS.map((input) => {
-    const estimate = estimateDemo(input);
-    const standard = estimate.tiers[1]!;
-    const parts = standard.components
-      .filter((c) => c.included && c.amountMinor > 0)
-      .sort((a, b) => b.amountMinor - a.amountMinor)
-      .map((c) => ({ component: c.component, share: c.amountMinor / standard.totalMinor }));
-    return { input, estimate, standard, parts };
-  });
 
   return (
     <>
@@ -117,8 +81,8 @@ export default function HomePage() {
               <a className="transition-colors hover:text-cold" href="#how">
                 Как считаем
               </a>
-              <a className="transition-colors hover:text-cold" href="#examples">
-                Примеры
+              <a className="transition-colors hover:text-cold" href="#solutions">
+                Готовые сметы
               </a>
             </div>
             <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-paper/35">Бета</span>
@@ -270,65 +234,24 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* ============================= ПРИМЕРЫ ============================= */}
-        <section id="examples" className="bg-paper">
+        {/* ======================== ГОТОВЫЕ СМЕТЫ ======================== */}
+        <section id="solutions" className="bg-paper">
           <div className="mx-auto w-full max-w-[1320px] px-5 py-20 sm:px-8 lg:px-12 lg:py-28">
-            <div className="flex flex-wrap items-baseline justify-between gap-4">
-              <h2 className="text-balance font-display text-[clamp(26px,3.4vw,42px)] font-extrabold leading-[1.1] tracking-[-0.035em]">
-                Готовые сметы
-              </h2>
-              <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-ink-4">
-                цены демонстрационные
+            <div className="flex flex-col items-center gap-4 text-center">
+              <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-laguna-hover">
+                Готовые решения
               </span>
+              <h2 className="max-w-[20ch] text-balance font-display text-[clamp(26px,3.4vw,44px)] font-extrabold leading-[1.08] tracking-[-0.035em]">
+                Типовые поездки, уже посчитанные целиком
+              </h2>
+              <p className="max-w-[56ch] text-[16px] leading-relaxed text-ink-3">
+                Выберите направление — увидите смету на поездку, какой её обычно берут: с привычным
+                месяцем, длительностью и составом. Дальше её можно поменять под себя.
+              </p>
             </div>
 
-            <div className="mt-10 grid gap-px overflow-hidden rounded-card border border-line bg-line lg:mt-14 lg:grid-cols-3">
-              {examples.map(({ input, estimate, standard, parts }) => {
-                const people = input.adults + input.children;
-                const biggest = parts[0]!;
-                return (
-                  <article
-                    key={estimate.destination.slug}
-                    className="flex flex-col gap-6 bg-surface p-7 lg:p-8"
-                  >
-                    <div className="flex items-baseline justify-between gap-3">
-                      <h3 className="font-display text-[24px] font-extrabold tracking-[-0.03em]">
-                        {estimate.destination.name}
-                      </h3>
-                      <span className="font-mono text-[11px] text-ink-4">
-                        {MONTHS_PREPOSITIONAL[input.month - 1]}
-                      </span>
-                    </div>
-
-                    <p className="font-mono text-[11.5px] leading-relaxed text-ink-4">
-                      {input.nights} ночей · {people} чел. · {input.hotelStars}★
-                      {input.allInclusive ? " · всё включено" : " · завтраки"}
-                    </p>
-
-                    <MiniBar parts={parts} />
-
-                    <p className="text-[13.5px] leading-relaxed text-ink-3">
-                      Больше всего уходит на «{COMPONENT_LABELS[biggest.component].toLowerCase()}» —{" "}
-                      {Math.round(biggest.share * 100)}% бюджета.
-                    </p>
-
-                    <div className="mt-auto flex items-end justify-between gap-3 border-t border-line pt-5">
-                      <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-ink-4">
-                        Итого
-                      </span>
-                      <span className="tnum font-display text-[28px] font-extrabold leading-none tracking-[-0.035em]">
-                        {formatMoney(standard.totalMinor)}
-                      </span>
-                    </div>
-
-                    {estimate.savings[0] && (
-                      <p className="text-[13px] leading-snug text-laguna-active">
-                        {estimate.savings[0].change} — минус {formatMoney(estimate.savings[0].savesMinor)}
-                      </p>
-                    )}
-                  </article>
-                );
-              })}
+            <div className="mt-12 lg:mt-16">
+              <SolutionCarousel />
             </div>
           </div>
         </section>
